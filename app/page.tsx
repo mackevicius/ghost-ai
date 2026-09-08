@@ -1,25 +1,12 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 
-import { useState } from 'react';
-import { EditorNavbar } from '@/components/editor/editor-navbar';
-import { ProjectSidebar } from '@/components/editor/project-sidebar';
+export default async function Home() {
+  const { isAuthenticated } = await auth();
 
-export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  if (isAuthenticated) {
+    redirect('/editor');
+  }
 
-  return (
-    <div className="flex flex-1 flex-col">
-      <EditorNavbar
-        isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
-      />
-      <ProjectSidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-      <div className="flex flex-1 items-center justify-center bg-base text-copy-muted">
-        Canvas coming soon
-      </div>
-    </div>
-  );
+  redirect('/sign-in');
 }

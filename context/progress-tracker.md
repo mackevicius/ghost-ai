@@ -1,11 +1,11 @@
 # Progress Tracker
 
 Update this file whenever the current phase, active feature, or implementation state changes.
-For completed section Do short, comprehensive. 2-3 sentence description per feature.
+Completed section: 2-3 sentences per feature, max. Summarize what exists now, not the steps taken to build it — keep it short even if that means dropping detail.
 
 ## Current Phase
 
-- Feature: 02 - Editor (base chrome complete)
+- Feature: 03 - Auth (complete)
 
 ## Current Goal
 
@@ -13,8 +13,9 @@ For completed section Do short, comprehensive. 2-3 sentence description per feat
 
 ## Completed
 
-- **01-design-system**: Initialized shadcn/ui with Button, Card, Dialog, Input, Tabs, Textarea, and ScrollArea in `components/ui/`, plus `lucide-react` and a `cn()` helper in `lib/utils.ts`. Rewired `app/globals.css` to the dark theme tokens from `context/ui-context.md`, wired the Geist fonts, and forced the `dark` class on `<html>`. Verified in-browser — no errors, no light-theme styling.
-- **02-editor**: Built the base editor chrome — `editor-navbar.tsx` (sidebar toggle, left/center/right sections) and `project-sidebar.tsx` (floating slide-in overlay with Projects header, My Projects/Shared tabs, New Project button) — wired together in `app/page.tsx`. The Dialog pattern needed no new code since `components/ui/dialog.tsx` already covers it. Verified in-browser: toggle and tabs work, no TypeScript or lint errors.
+- **01-design-system**: shadcn/ui (Button, Card, Dialog, Input, Tabs, Textarea, ScrollArea) installed in `components/ui/` with `lucide-react` and a `cn()` helper. `app/globals.css` carries the dark theme tokens and Geist fonts; `<html>` is forced dark. Verified in-browser, no light-theme leaks.
+- **02-editor**: Base editor chrome — `editor-navbar.tsx` (sidebar toggle, three sections) and `project-sidebar.tsx` (floating overlay with tabs and New Project button) — wired together in `app/page.tsx`. Verified in-browser, no errors.
+- **03-auth**: Clerk wired in via `proxy.ts` (protects all routes except sign-in/sign-up, built from the Clerk env vars) and `ClerkProvider` (dark theme + CSS-variable overrides) in the root layout. Editor chrome now lives at `app/editor`; `app/page.tsx` redirects based on auth state, and `/sign-in` / `/sign-up` use a shared two-panel `AuthLayout`. `UserButton` sits in the navbar. Verified: build passes, in-browser checks confirm redirects and the responsive two-panel layout.
 
 ## In Progress
 
