@@ -1,23 +1,20 @@
 # Progress Tracker
 
 Update this file whenever the current phase, active feature, or implementation state changes.
+For completed section Do short, comprehensive. 2-3 sentence description per feature.
 
 ## Current Phase
 
-- Feature: 01 - Design System (complete)
+- Feature: 02 - Editor (base chrome complete)
 
 ## Current Goal
 
-- Ready for the next feature unit.
+- Ready for the next feature unit (canvas implementation).
 
 ## Completed
 
-- 01-design-system: shadcn/ui initialized (`components.json`, style `base-nova`, `@base-ui/react` primitives). Added Button, Card, Dialog, Input, Tabs, Textarea, ScrollArea to `components/ui/`.
-- 01-design-system: installed `lucide-react`.
-- 01-design-system: `lib/utils.ts` created by shadcn init, re-exports `cn()` from the `cn` package (clsx + tailwind-merge behavior).
-- 01-design-system: `app/globals.css` rewired to the dark theme tokens from `context/ui-context.md` (`--bg-*`, `--text-*`, `--accent-*`, `--state-*`) mapped to Tailwind utilities (`bg-surface`, `text-copy-*`, `border-surface-border`, `text-brand`, `bg-accent-dim`, etc.) via `@theme inline`. `bg-base` implemented as a standalone `@utility` to avoid colliding with Tailwind's built-in `text-base` font-size scale.
-- 01-design-system: wired `--font-sans`/`--font-mono` to the Geist variables set in `app/layout.tsx`; added `dark` class to `<html>` so shadcn's `dark:` utility variants apply (dark-only theme, no light mode).
-- 01-design-system: verified in-browser (dev server + screenshots) — components import without errors, `cn()` works, theme colors/fonts compute correctly, no light-theme styling appears.
+- **01-design-system**: Initialized shadcn/ui with Button, Card, Dialog, Input, Tabs, Textarea, and ScrollArea in `components/ui/`, plus `lucide-react` and a `cn()` helper in `lib/utils.ts`. Rewired `app/globals.css` to the dark theme tokens from `context/ui-context.md`, wired the Geist fonts, and forced the `dark` class on `<html>`. Verified in-browser — no errors, no light-theme styling.
+- **02-editor**: Built the base editor chrome — `editor-navbar.tsx` (sidebar toggle, left/center/right sections) and `project-sidebar.tsx` (floating slide-in overlay with Projects header, My Projects/Shared tabs, New Project button) — wired together in `app/page.tsx`. The Dialog pattern needed no new code since `components/ui/dialog.tsx` already covers it. Verified in-browser: toggle and tabs work, no TypeScript or lint errors.
 
 ## In Progress
 
@@ -25,7 +22,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Add the next planned feature unit here.
+- Add the next planned feature unit here (canvas / React Flow integration).
 
 ## Open Questions
 
