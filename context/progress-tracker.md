@@ -5,11 +5,11 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Current Phase
 
-- Feature: 04 - Project Dialogs & Editor Home (implemented; browser verification pending)
+- Feature: 05 - Prisma Schema And Data Layer (complete)
 
 ## Current Goal
 
-- Verify project dialogs and the mobile sidebar in an authenticated browser session.
+- Prisma data layer is ready; choose the next feature specification.
 
 ## Completed
 
@@ -18,6 +18,8 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 - **03-auth**: Clerk wired in via `proxy.ts` (protects all routes except sign-in/sign-up, built from the Clerk env vars) and `ClerkProvider` (dark theme + CSS-variable overrides) in the root layout. Editor chrome now lives at `app/editor`; `app/page.tsx` redirects based on auth state, and `/sign-in` / `/sign-up` use a shared two-panel `AuthLayout`. `UserButton` sits in the navbar. Verified: build passes, in-browser checks confirm redirects and the responsive two-panel layout.
 
 - **04-project-dialogs**: Editor home and sidebar create controls open the Create Project dialog with a live slug preview; owned mock projects have rename/delete dialogs and mobile has an outside-click scrim. A dedicated hook manages local projects, forms, dialogs, and loading without API calls or persistence. TypeScript and state-transition checks pass; lint has no errors (one existing Clerk skill-template warning), with authenticated browser verification still pending.
+
+- **05-prisma**: `prisma/models/project.prisma` defines Project and ProjectCollaborator with the requested status, relations, and indexes; `lib/prisma.ts` exports a development-cached singleton selecting Accelerate or the PostgreSQL adapter by URL. Migration `20260909134838_create_projects` was applied successfully and the client generated. Schema validation, TypeScript, singleton lint, and `npm run build` pass.
 
 ## In Progress
 
@@ -37,4 +39,6 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Session Notes
 
-- Feature 04 uses in-memory mock projects only; refresh resets changes. Dev server: `http://localhost:3001/editor`. Browser verification reached the sign-in redirect; no authentication changes were made.
+- Feature 04 still uses in-memory mock projects; no editor persistence was added in feature 05. Browser verification remains blocked by sign-in, and the port 3001 dev server is stopped.
+- Prisma uses the existing `prisma7.config.ts` with the `prisma/` schema directory. Accelerate support adds `@prisma/extension-accelerate`; `ownerId` stores the Clerk user ID without adding a local User model.
+- The execution shell uses Node 23.11.0, outside Prisma 7's supported engine range; use Node 24 LTS. Installation reported 17 dependency vulnerabilities (13 moderate, 4 high); no unrelated dependency upgrades were performed.
