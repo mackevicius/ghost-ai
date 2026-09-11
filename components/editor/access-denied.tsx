@@ -9,7 +9,10 @@ export function AccessDenied() {
       <p className="max-w-sm text-sm text-copy-muted">
         This project is unavailable or you do not have access.
       </p>
-      <Link href="/editor" className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-brand hover:underline focus-visible:outline-2 focus-visible:outline-brand">
+      <Link
+        href="/editor"
+        className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-brand hover:underline focus-visible:outline-2 focus-visible:outline-brand"
+      >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Back to projects
       </Link>

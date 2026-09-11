@@ -41,7 +41,11 @@ export function ProjectSidebar({
         {items.map((project) => (
           <li
             key={project.id}
-            className={cn('flex min-w-0 items-center gap-1 rounded-xl border border-transparent px-2 py-2 text-sm text-copy-primary', project.id === activeProjectId && 'border-surface-border bg-accent-dim')}
+            className={cn(
+              'flex min-w-0 items-center gap-1 rounded-xl border border-transparent px-2 py-2 text-sm text-copy-primary',
+              project.id === activeProjectId &&
+                'border-surface-border bg-accent-dim',
+            )}
           >
             <Link
               href={`/editor/${encodeURIComponent(project.id)}`}
@@ -88,7 +92,10 @@ export function ProjectSidebar({
           type="button"
           aria-label="Close project sidebar"
           onClick={onClose}
-          className={cn('fixed inset-x-0 top-14 bottom-0 z-30 cursor-pointer bg-base opacity-70', workspace ? 'lg:hidden' : 'md:hidden')}
+          className={cn(
+            'fixed inset-x-0 top-14 bottom-0 z-30 cursor-pointer bg-base opacity-70',
+            workspace ? 'lg:hidden' : 'md:hidden',
+          )}
         />
       )}
       <aside
@@ -97,7 +104,13 @@ export function ProjectSidebar({
           workspace
             ? 'fixed top-20 bottom-3 left-3 z-40 flex w-64 max-w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-3xl border border-surface-border bg-surface lg:static lg:max-w-none lg:shrink-0'
             : 'fixed top-14 bottom-0 left-0 z-40 flex w-72 flex-col border-r border-surface-border bg-surface/95 transition-transform duration-200 ease-in-out',
-          workspace ? (isOpen ? 'flex' : 'hidden') : (isOpen ? 'translate-x-0' : '-translate-x-full'),
+          workspace
+            ? isOpen
+              ? 'flex'
+              : 'hidden'
+            : isOpen
+              ? 'translate-x-0'
+              : '-translate-x-full',
         )}
       >
         <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">

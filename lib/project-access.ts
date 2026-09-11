@@ -19,25 +19,37 @@ export async function getCurrentIdentity(): Promise<ClerkIdentity> {
   return {
     userId,
     primaryEmail: user?.primaryEmailAddress?.emailAddress ?? null,
-    verifiedEmails: user?.emailAddresses
-      .filter((email) => email.verification?.status === 'verified')
-      .map((email) => email.emailAddress) ?? [],
+    verifiedEmails:
+      user?.emailAddresses
+        .filter((email) => email.verification?.status === 'verified')
+        .map((email) => email.emailAddress) ?? [],
   };
 }
 
-export async function getProjectAccess(roomId: string, identity: ClerkIdentity): Promise<Project | null> {
+export async function getProjectAccess(
+  roomId: string,
+  identity: ClerkIdentity,
+): Promise<Project | null> {
   const project = await prisma.project.findFirst({
     where: {
       id: roomId,
       OR: [
         { ownerId: identity.userId },
         ...identity.verifiedEmails.map((email) => ({
-          collaborators: { some: { email: { equals: email, mode: 'insensitive' as const } } },
+          collaborators: {
+            some: { email: { equals: email, mode: 'insensitive' as const } },
+          },
         })),
       ],
     },
     select: { id: true, name: true, ownerId: true },
   });
 
-  return project ? { id: project.id, name: project.name, isOwner: project.ownerId === identity.userId } : null;
+  return project
+    ? {
+        id: project.id,
+        name: project.name,
+        isOwner: project.ownerId === identity.userId,
+      }
+    : null;
 }

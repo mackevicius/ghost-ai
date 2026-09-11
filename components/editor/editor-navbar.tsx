@@ -39,27 +39,46 @@ export function EditorNavbar({
         </Button>
         {workspace && (
           <div className="min-w-0">
-          <h1 className="truncate text-sm font-medium text-copy-primary" title={workspace.projectName}>
-            {workspace.projectName}
-          </h1>
-          <p className="text-xs text-copy-muted">Workspace</p>
+            <h1
+              className="truncate text-sm font-medium text-copy-primary"
+              title={workspace.projectName}
+            >
+              {workspace.projectName}
+            </h1>
+            <p className="text-xs text-copy-muted">Workspace</p>
           </div>
         )}
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2 pl-2">
         {workspace && (
           <>
-              <Button variant="ghost" size="icon" onClick={workspace.onShare} title="Share project" aria-label="Share project">
-                <Share2 className="h-5 w-5" />
-              </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={workspace.onShare}
+              title="Share project"
+              aria-label="Share project"
+            >
+              <Share2 className="h-5 w-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={workspace.onToggleAiSidebar}
-              aria-label={workspace.isAiSidebarOpen ? 'Close AI sidebar' : 'Open AI sidebar'}
-              title={workspace.isAiSidebarOpen ? 'Close AI sidebar' : 'Open AI sidebar'}
+              aria-label={
+                workspace.isAiSidebarOpen
+                  ? 'Close AI sidebar'
+                  : 'Open AI sidebar'
+              }
+              title={
+                workspace.isAiSidebarOpen
+                  ? 'Close AI sidebar'
+                  : 'Open AI sidebar'
+              }
               aria-expanded={workspace.isAiSidebarOpen}
-              aria-controls={workspace.isAiSidebarOpen ? 'workspace-ai-sidebar' : undefined}
+              aria-controls={
+                workspace.isAiSidebarOpen ? 'workspace-ai-sidebar' : undefined
+              }
               className="text-ai-text"
             >
               <Sparkles className="h-5 w-5" />
