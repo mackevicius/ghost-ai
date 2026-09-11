@@ -36,6 +36,8 @@
 - Only authenticated users can access protected routes.
 - Only the owner or a collaborator can mutate project resources.
 - Liveblocks room tokens are issued only after verifying project membership.
+- Editor project lists are loaded server-side through `lib/project-data.ts`; shared access matches verified Clerk email addresses to collaborator emails case-insensitively.
+- New editor projects use a slug plus unique suffix as both project ID and room ID. POST accepts a validated `roomId`; callers omitting it retain server-generated IDs. Rename does not change the ID.
 
 ## Starter System Designs
 

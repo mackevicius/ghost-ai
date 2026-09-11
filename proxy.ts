@@ -5,8 +5,10 @@ const isPublicRoute = createRouteMatcher([
   `${process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}(.*)`,
 ]);
 
+const isProjectApiRoute = createRouteMatcher(['/api/projects', '/api/projects/(.*)']);
+
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
+  if (!isPublicRoute(req) && !isProjectApiRoute(req)) {
     await auth.protect();
   }
 });
