@@ -5,11 +5,11 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Current Phase
 
-- Feature: 07 - Wire Editor Home (implemented; authenticated browser verification pending)
+- Feature: 09 - Share Dialog (implemented; live authenticated verification pending)
 
 ## Current Goal
 
-- Complete authenticated browser verification of the server-loaded sidebar and project mutations before canvas work.
+- Verify sharing with live owner/collaborator sessions and real Clerk profiles before the next feature.
 
 ## Completed
 
@@ -25,20 +25,27 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 - **07-wire-editor-home**: Editor home loads owned/shared projects server-side and wires `useProjectActions` to the sidebar and dialogs for create navigation, rename refresh, and delete refresh/redirect. Validated slug/suffix room IDs match project IDs; an access-checked `/editor/[projectId]` shell provides the approved destination without canvas features. All 21 mocked API/action/data tests, TypeScript, focused lint, and `npm run build` pass; authenticated live verification remains pending.
 
+- **08-editor-workspace-shell**: `/editor/[roomId]` uses server-only identity/access helpers and renders `AccessDenied` for missing or unauthorized projects; signed-out users redirect to sign-in. The full-viewport shell includes the project-name navbar, disabled share action, highlighted project sidebar, canvas placeholder, and toggleable AI placeholder without canvas/chat/sharing logic. All 29 mocked/render regression tests, focused lint, TypeScript, and production build pass; live browser verification remains pending.
+
+- **09-share-dialog**: The workspace Share action opens a collaborator list enriched with Clerk names/avatars and email-only fallback. Owners can invite normalized emails, remove collaborators, and copy the project link with temporary feedback; collaborators have read-only controls and API-enforced restrictions. All 41 regression tests, focused lint, TypeScript, and `npm run build` pass; live authenticated browser/database verification remains pending.
+
 ## In Progress
 
+- Feature 09 live verification remains pending: test invitation/removal with separate owner and collaborator sessions, real Clerk profile images, and clipboard permissions. Current coverage uses mocked dependencies and render/state checks.
+- Feature 08 live authenticated and desktop/mobile visual verification remains pending. Access, project context, denial rendering, and sidebar toggles are covered by mocked/render tests; these do not replace live database or browser checks.
 - Feature 07 authenticated browser verification remains pending: `/editor` redirects to sign-in in the available browser session. Create, rename, delete, and shared-project behavior are covered by mocked tests, not a live database/browser run.
 - Feature 04 authenticated browser verification: focus, Enter submission, and responsive layout checks remain pending.
 - Feature 06 live authenticated database verification remains pending; route behavior is covered with mocked Clerk and Prisma dependencies.
 
 ## Next Up
 
+- Verify feature 09 sharing with live owner/collaborator sessions. Invitation email delivery is not implemented; share the copied project URL with invited collaborators.
 - Verify the feature 07 create/rename/delete flows, shared tab, dialog focus, and mobile layout with a signed-in session.
-- Choose the next feature specification after authenticated verification; canvas / React Flow integration remains out of scope for feature 07.
+- Verify feature 08 workspace access, long project names, AI/sidebar toggles, and desktop/mobile layout, then choose the next feature specification. Real canvas, AI chat, and sharing remain out of scope for feature 08.
 
 ## Open Questions
 
-- None for feature 07. The user approved the missing data helper, minimal workspace route, and validated room-ID support in POST.
+- Feature 09 treats invitations as email-based project access grants; sending invitation emails is not included in the specification or implementation.
 
 ## Architecture Decisions
 
@@ -46,8 +53,15 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Session Notes
 
+- Sharing access-list follow-up: `People with access` now includes the owner above collaborators, with an Owner label and `(you)` for the owner viewer. The owner has no removal action and remains visible with a fallback label if Clerk is unavailable. Owner and collaborator profile lookups run concurrently with separate 1.5-second deadlines; GET now returns `{ collaborators, owner, isOwner }`. Fourteen sharing tests, TypeScript, and focused lint pass; live visual verification remains pending.
+- Sharing loading follow-up: owner list requests skip Clerk identity enrichment; optional collaborator profile loading has a 1.5-second deadline with email-only fallback, and empty lists skip Clerk entirely. Fourteen focused sharing tests, TypeScript, and lint pass. Live request timing remains unmeasured; database and authentication latency are not covered by the profile deadline.
+- Feature 09 verification: `node --test tests/*.test.mjs` (41 passing), `npm run build`, `npx tsc --noEmit`, and focused ESLint pass. With approval, the dev server was stopped for the build and left stopped; restart manually with `npm run dev`.
+- Collaborator API: GET returns `{ collaborators, isOwner }` after checking membership; POST accepts `{ email }` and returns 201, with 409 for duplicates; DELETE accepts `{ collaboratorId }` and is scoped to both the room and owner. All handlers return JSON 401 for signed-out requests. Clerk enrichment stays server-side and gracefully falls back to email on missing users or provider failure.
+- Feature 08 visual follow-up matches the supplied three-panel direction: inset rounded surfaces, desktop panels open independently by default, grid-backed canvas placeholder, tinted current-project row, and navbar subtitle. Compact screens start with panels closed and use exclusive overlays. The 12 focused action/render tests, TypeScript, and focused lint pass; live desktop/mobile visual verification of this revision remains pending, and no server was started or stopped.
+- Feature 08 checks: `node --test tests/project-access.test.mjs tests/project-actions.test.mjs tests/project-api.test.mjs` (29 passing), `npx tsc --noEmit`, focused ESLint, and `npm run build`. Renaming `[projectId]` to `[roomId]` required `npx next typegen` to replace a stale generated route reference; public URLs are unchanged.
+- With explicit approval, the user's dev server was stopped for the feature 08 build and left stopped. Restart manually with `npm run dev`. Existing Rosetta and parent-lockfile build warnings remain unchanged.
 - `/implement-spec` is saved as a VS Code user-profile prompt, available across projects. It reads the active editor spec, implements it under repository rules, runs required checks, and updates the progress tracker.
-- Development server is available at `http://localhost:3001`; the production build completed before starting it. Signed-out browser verification confirms `/editor` redirects to sign-in.
+- The agent-started server on port 3001 was stopped at the user's request. The user manages their own development server; do not start or stop it automatically.
 - Feature 07 regression checks: `node --test tests/project-actions.test.mjs tests/project-api.test.mjs` (21 passing tests). Focused lint and production build pass with the existing Rosetta and parent-lockfile warnings.
 - Feature 07 replaces feature 04's in-memory mock projects with server-loaded database projects. The workspace destination is a minimal shell, not a canvas implementation.
 - Feature 06 returns a project array for GET, the project object for POST (201) and PATCH (200), and an empty DELETE response (204). JSON bodies must be objects; supplied names must be non-empty strings and are trimmed. Missing names default only on creation; raw client-supplied `id` and ownership are ignored. Feature 07 adds optional validated `roomId` (up to 100 lowercase alphanumeric/hyphen characters) and a `409` collision response.

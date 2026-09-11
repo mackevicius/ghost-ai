@@ -4,6 +4,9 @@ import path from 'node:path';
 import { test } from 'node:test';
 import vm from 'node:vm';
 import ts from 'typescript';
+import { createElement } from 'react';
+import * as jsxRuntime from 'react/jsx-runtime';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 function loadModule(file, dependencies, globals = {}) {
   const source = readFileSync(path.join(import.meta.dirname, '..', file), 'utf8');
@@ -29,7 +32,7 @@ function setup(activeProjectId, respond) {
   let pending = false;
   let task;
   let uuidCount = 0;
-  const { useProjectActions } = loadModule('hooks/use-project-actions.ts', {
+  const { useProjectActions: runProjectActions } = loadModule('hooks/use-project-actions.ts', {
     react: {
       useState(initial) {
         const slot = index++;
@@ -60,7 +63,7 @@ function setup(activeProjectId, respond) {
     },
   });
   return {
-    render() { index = 0; return useProjectActions(activeProjectId); },
+    render() { index = 0; return runProjectActions(activeProjectId); },
     settle: () => task,
     requests,
     navigations,
@@ -160,12 +163,8 @@ test('server data helper loads owned and verified-email shared projects', async 
   const queries = [];
   const { getProjects } = loadModule('lib/project-data.ts', {
     'server-only': {},
-    '@clerk/nextjs/server': {
-      auth: async () => ({ userId: 'owner' }),
-      currentUser: async () => ({ emailAddresses: [
-        { emailAddress: 'Member@Example.com', verification: { status: 'verified' } },
-        { emailAddress: 'unverified@example.com', verification: { status: 'unverified' } },
-      ] }),
+    '@/lib/project-access': {
+      getCurrentIdentity: async () => ({ userId: 'owner', primaryEmail: 'Member@Example.com', verifiedEmails: ['Member@Example.com'] }),
     },
     'next/navigation': { redirect: () => assert.fail('Unexpected redirect') },
     '@/lib/prisma': { prisma: { project: { findMany: async (query) => {
@@ -186,21 +185,120 @@ test('server data helper loads owned and verified-email shared projects', async 
 test('server helper redirects signed-out users without database access', async () => {
   const { getProjects } = loadModule('lib/project-data.ts', {
     'server-only': {},
-    '@clerk/nextjs/server': { auth: async () => ({ userId: null }) },
+    '@/lib/project-access': { getCurrentIdentity: async () => { throw new Error('/sign-in'); } },
     'next/navigation': { redirect: (url) => { throw new Error(url); } },
     '@/lib/prisma': { prisma: {} },
   });
   await assert.rejects(getProjects(), /\/sign-in/);
 });
 
-test('workspace allows listed projects and hides inaccessible projects', async () => {
-  const { default: WorkspacePage } = loadModule('app/editor/[projectId]/page.tsx', {
+test('workspace renders project context and AccessDenied without loading lists for inaccessible rooms', async () => {
+  let listCalls = 0;
+  const { default: WorkspacePage } = loadModule('app/editor/[roomId]/page.tsx', {
     'react/jsx-runtime': { jsx: (type, props) => ({ type, props }) },
-    'next/navigation': { notFound: () => { throw new Error('not-found'); } },
-    '@/components/editor/editor-home': { EditorHome: 'EditorHome' },
-    '@/lib/project-data': { getProjects: async () => ({ ownedProjects: [project], sharedProjects: [] }) },
+    '@/components/editor/access-denied': { AccessDenied: 'AccessDenied' },
+    '@/components/editor/editor-workspace': { EditorWorkspace: 'EditorWorkspace' },
+    '@/lib/project-access': {
+      getCurrentIdentity: async () => ({ userId: 'owner', primaryEmail: null, verifiedEmails: [] }),
+      getProjectAccess: async (roomId) => roomId === project.id ? project : null,
+    },
+    '@/lib/project-data': { getProjects: async () => {
+      listCalls++;
+      return { ownedProjects: [project], sharedProjects: [] };
+    } },
   });
-  const page = await WorkspacePage({ params: Promise.resolve({ projectId: project.id }) });
+  const page = await WorkspacePage({ params: Promise.resolve({ roomId: project.id }) });
+  assert.equal(page.type, 'EditorWorkspace');
   assert.equal(page.props.activeProject.id, project.id);
-  await assert.rejects(WorkspacePage({ params: Promise.resolve({ projectId: 'private-project' }) }), /not-found/);
+  for (const roomId of ['private-project', 'missing-project']) {
+    const denied = await WorkspacePage({ params: Promise.resolve({ roomId }) });
+    assert.equal(denied.type, 'AccessDenied');
+  }
+  assert.equal(listCalls, 1);
+});
+
+test('workspace redirects signed-out users before reading a project or project lists', async () => {
+  const { default: WorkspacePage } = loadModule('app/editor/[roomId]/page.tsx', {
+    'react/jsx-runtime': jsxRuntime,
+    '@/components/editor/access-denied': {},
+    '@/components/editor/editor-workspace': {},
+    '@/lib/project-access': {
+      getCurrentIdentity: async () => { throw new Error('/sign-in'); },
+      getProjectAccess: () => assert.fail('Project access should not run'),
+    },
+    '@/lib/project-data': { getProjects: () => assert.fail('Project lists should not load') },
+  });
+  await assert.rejects(WorkspacePage({ params: Promise.resolve({ roomId: project.id }) }), /\/sign-in/);
+});
+
+test('workspace shell renders project name, share action, current room, and toggles AI placeholder', () => {
+  const states = [];
+  let stateIndex = 0;
+  let navbarProps;
+  let sidebarProps;
+  let actionRoom;
+  const icon = () => createElement('span');
+  const button = ({ children, variant, size, ...props }) => createElement('button', { ...props, 'data-variant': variant, 'data-size': size }, children);
+  const { EditorNavbar } = loadModule('components/editor/editor-navbar.tsx', {
+    'react/jsx-runtime': jsxRuntime,
+    'lucide-react': { PanelLeftClose: icon, PanelLeftOpen: icon, Share2: icon, Sparkles: icon },
+    '@clerk/nextjs': { UserButton: () => null },
+    '@/components/ui/button': { Button: button },
+  });
+  const { EditorWorkspace } = loadModule('components/editor/editor-workspace.tsx', {
+    'react/jsx-runtime': jsxRuntime,
+    react: { useSyncExternalStore: () => true, useState: (initial) => {
+      const slot = stateIndex++;
+      if (!(slot in states)) states[slot] = initial;
+      return [states[slot], (value) => { states[slot] = typeof value === 'function' ? value(states[slot]) : value; }];
+    } },
+    'lucide-react': { MessageSquare: icon, Workflow: icon, X: icon },
+    '@/components/editor/editor-navbar': { EditorNavbar: (props) => {
+      navbarProps = props;
+      return createElement(EditorNavbar, props);
+    } },
+    '@/components/editor/project-sidebar': { ProjectSidebar: (props) => { sidebarProps = props; return null; } },
+    '@/components/editor/project-dialogs': { ProjectDialogs: () => null },
+    '@/components/editor/share-dialog': { ShareDialog: () => createElement('div', null, 'Share dialog opened') },
+    '@/components/ui/button': { Button: button },
+    '@/hooks/use-project-actions': { useProjectActions: (roomId) => { actionRoom = roomId; return {}; } },
+  });
+  const render = () => {
+    stateIndex = 0;
+    return renderToStaticMarkup(createElement(EditorWorkspace, {
+      activeProject: project, ownedProjects: [project], sharedProjects: [],
+    }));
+  };
+  const initial = render();
+  assert.match(initial, /Original/);
+  assert.match(initial, /aria-label="Share project"/);
+  navbarProps.workspace.onShare();
+  assert.match(render(), /Share dialog opened/);
+  assert.match(initial, /Your canvas will appear here/);
+  assert.equal(sidebarProps.activeProjectId, project.id);
+  assert.equal(actionRoom, project.id);
+  assert.match(initial, /AI chat is coming soon/);
+  navbarProps.workspace.onToggleAiSidebar();
+  assert.doesNotMatch(render(), /AI chat is coming soon/);
+  assert.equal(navbarProps.workspace.isAiSidebarOpen, false);
+  navbarProps.workspace.onToggleAiSidebar();
+  assert.match(render(), /AI chat is coming soon/);
+  navbarProps.onToggleSidebar();
+  render();
+  assert.equal(sidebarProps.isOpen, false);
+});
+
+test('AccessDenied renders a lock, generic message, and editor link', () => {
+  const { AccessDenied } = loadModule('components/editor/access-denied.tsx', {
+    'react/jsx-runtime': jsxRuntime,
+    'next/link': { default: ({ children, ...props }) => createElement('a', props, children) },
+    'lucide-react': {
+      ArrowLeft: () => null,
+      LockKeyhole: () => createElement('span', { 'data-icon': 'lock' }),
+    },
+  });
+  const html = renderToStaticMarkup(createElement(AccessDenied));
+  assert.match(html, /data-icon="lock"/);
+  assert.match(html, /Access denied/);
+  assert.match(html, /href="\/editor"/);
 });

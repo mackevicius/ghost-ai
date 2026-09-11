@@ -37,7 +37,9 @@
 - Only the owner or a collaborator can mutate project resources.
 - Liveblocks room tokens are issued only after verifying project membership.
 - Editor project lists are loaded server-side through `lib/project-data.ts`; shared access matches verified Clerk email addresses to collaborator emails case-insensitively.
+- `lib/project-access.ts` resolves Clerk identity (user ID, primary email, verified emails) and checks individual room access by owner or verified collaborator email. `/editor/[roomId]` redirects signed-out users and renders the same `AccessDenied` screen for missing and unauthorized projects before loading sidebar data.
 - New editor projects use a slug plus unique suffix as both project ID and room ID. POST accepts a validated `roomId`; callers omitting it retain server-generated IDs. Rename does not change the ID.
+- `/api/projects/[projectId]/collaborators` lists collaborators for project members and restricts invite/removal to the owner. Invites persist normalized emails as access grants (no invitation email delivery); Clerk Backend API enriches verified matching emails with names/avatars, with email-only fallback. No local user table is introduced.
 
 ## Starter System Designs
 

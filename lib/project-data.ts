@@ -1,18 +1,11 @@
 import 'server-only';
 
-import { auth, currentUser } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
+import { getCurrentIdentity, type ClerkIdentity } from '@/lib/project-access';
 import { prisma } from '@/lib/prisma';
 import type { ProjectLists } from '@/lib/project-types';
 
-export async function getProjects(): Promise<ProjectLists> {
-  const { userId } = await auth();
-  if (!userId) redirect('/sign-in');
-
-  const user = await currentUser();
-  const emails = user?.emailAddresses
-    .filter((email) => email.verification?.status === 'verified')
-    .map((email) => email.emailAddress) ?? [];
+export async function getProjects(identity?: ClerkIdentity): Promise<ProjectLists> {
+  const { userId, verifiedEmails: emails } = identity ?? await getCurrentIdentity();
   const select = { id: true, name: true };
   const [owned, shared] = await Promise.all([
     prisma.project.findMany({ where: { ownerId: userId }, select, orderBy: { createdAt: 'desc' } }),
