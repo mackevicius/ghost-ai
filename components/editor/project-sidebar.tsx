@@ -1,15 +1,16 @@
 'use client';
 
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import type { Project } from '@/hooks/use-project-dialogs';
+import type { Project, ProjectLists } from '@/lib/project-types';
 
-interface ProjectSidebarProps {
+interface ProjectSidebarProps extends ProjectLists {
   isOpen: boolean;
   onClose: () => void;
-  projects: Project[];
+  activeProjectId?: string;
   onCreate: () => void;
   onRename: (project: Project) => void;
   onDelete: (project: Project) => void;
@@ -18,13 +19,15 @@ interface ProjectSidebarProps {
 export function ProjectSidebar({
   isOpen,
   onClose,
-  projects,
+  ownedProjects,
+  sharedProjects,
+  activeProjectId,
   onCreate,
   onRename,
   onDelete,
 }: ProjectSidebarProps) {
   function projectList(isOwner: boolean) {
-    const items = projects.filter((project) => project.isOwner === isOwner);
+    const items = isOwner ? ownedProjects : sharedProjects;
     if (!items.length)
       return (
         <p className="m-auto text-center text-sm text-copy-muted">
@@ -38,9 +41,14 @@ export function ProjectSidebar({
             key={project.id}
             className="flex min-w-0 items-center gap-1 rounded-xl px-2 py-2 text-sm text-copy-primary"
           >
-            <span className="min-w-0 flex-1 wrap-break-word">
+            <Link
+              href={`/editor/${encodeURIComponent(project.id)}`}
+              onClick={onClose}
+              aria-current={project.id === activeProjectId ? 'page' : undefined}
+              className="min-w-0 flex-1 wrap-anywhere hover:text-brand aria-[current=page]:text-brand"
+            >
               {project.name}
-            </span>
+            </Link>
             {project.isOwner && (
               <>
                 <Button

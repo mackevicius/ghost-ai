@@ -11,14 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import type { useProjectDialogs } from '@/hooks/use-project-dialogs';
+import type { useProjectActions } from '@/hooks/use-project-actions';
 
 interface ProjectDialogsProps {
-  controller: ReturnType<typeof useProjectDialogs>;
+  controller: ReturnType<typeof useProjectActions>;
 }
 
 export function ProjectDialogs({ controller }: ProjectDialogsProps) {
-  const { dialog, name, setName, slug, isLoading, canSubmit, close, submit } =
+  const { dialog, name, setName, roomId, error, isLoading, canSubmit, close, submit } =
     controller;
   const inputRef = useRef<HTMLInputElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -81,11 +81,12 @@ export function ProjectDialogs({ controller }: ProjectDialogsProps) {
                   className="break-all text-xs text-copy-muted"
                   aria-live="polite"
                 >
-                  Slug: <span className="font-mono">{slug || '...'}</span>
+                  Room ID: <span className="font-mono">{roomId || '...'}</span>
                 </p>
               )}
             </div>
           )}
+          {error && <p role="alert" className="text-sm wrap-anywhere text-error">{error}</p>}
           <DialogFooter className="rounded-b-3xl">
             <Button
               ref={cancelRef}
