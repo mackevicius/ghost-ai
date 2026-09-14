@@ -99,6 +99,7 @@ shadcn/ui on top of Tailwind. No custom design system. Components live in `compo
 - Sidebars: floating overlay with dark semi-transparent background and subtle border.
 - Modals and dialogs: centered overlay, `rounded-3xl`, dark background with backdrop blur.
 - Navbar: top bar with dark background and bottom border.
+- Workspace shell reference: inset rounded three-column layout with a grid-backed central surface. Project and AI panels default open as independent desktop columns; compact screens show one overlay at a time and initially show only the canvas.
 
 ## Icons
 
