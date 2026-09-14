@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useSyncExternalStore } from 'react';
-import { MessageSquare, Workflow, X } from 'lucide-react';
+import { MessageSquare, X } from 'lucide-react';
+import { CanvasRoom } from '@/components/editor/canvas-room';
 import { EditorNavbar } from '@/components/editor/editor-navbar';
 import { ProjectSidebar } from '@/components/editor/project-sidebar';
 import { ProjectDialogs } from '@/components/editor/project-dialogs';
@@ -83,20 +84,9 @@ export function EditorWorkspace({
         />
         <main
           aria-label="Project canvas"
-          className="flex min-w-0 flex-1 flex-col items-center justify-center gap-5 overflow-auto rounded-3xl border border-surface-border bg-base p-6 text-center"
-          style={{
-            backgroundImage:
-              'linear-gradient(var(--border-default) 1px, transparent 1px), linear-gradient(90deg, var(--border-default) 1px, transparent 1px), radial-gradient(ellipse at top, var(--accent-primary-dim), transparent 65%)',
-            backgroundSize: '64px 64px, 64px 64px, 100% 100%',
-            backgroundBlendMode: 'soft-light, soft-light, normal',
-          }}
+          className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border border-surface-border bg-base"
         >
-          <div className="rounded-2xl border border-surface-border bg-elevated p-4">
-            <Workflow className="h-8 w-8 text-brand" aria-hidden="true" />
-          </div>
-          <h2 className="max-w-md text-2xl font-medium text-copy-primary">
-            Your canvas will appear here.
-          </h2>
+          <CanvasRoom key={activeProject.id} roomId={activeProject.id} />
         </main>
         {isAiSidebarOpen && (
           <aside

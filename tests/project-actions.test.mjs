@@ -393,6 +393,9 @@ test('workspace shell renders project name, share action, current room, and togg
         },
       },
       '@/components/editor/project-dialogs': { ProjectDialogs: () => null },
+      '@/components/editor/canvas-room': {
+        CanvasRoom: ({ roomId }) => createElement('div', { 'data-room': roomId }, 'Collaborative canvas'),
+      },
       '@/components/editor/share-dialog': {
         ShareDialog: () => createElement('div', null, 'Share dialog opened'),
       },
@@ -420,7 +423,8 @@ test('workspace shell renders project name, share action, current room, and togg
   assert.match(initial, /aria-label="Share project"/);
   navbarProps.workspace.onShare();
   assert.match(render(), /Share dialog opened/);
-  assert.match(initial, /Your canvas will appear here/);
+  assert.match(initial, /Collaborative canvas/);
+  assert.ok(initial.includes(`data-room="${project.id}"`));
   assert.equal(sidebarProps.activeProjectId, project.id);
   assert.equal(actionRoom, project.id);
   assert.match(initial, /AI chat is coming soon/);

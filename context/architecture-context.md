@@ -36,6 +36,8 @@
 - Only authenticated users can access protected routes.
 - Only the owner or a collaborator can mutate project resources.
 - Liveblocks room tokens are issued only after verifying project membership.
+- `POST /api/liveblocks-auth` authenticates with Clerk and calls `getProjectAccess` before any Liveblocks operations. It uses `getOrCreateRoom` with private defaults and grants a session access token for exactly the project ID, including server-derived name, avatar, and deterministic cursor color. `lib/liveblocks.ts` lazily caches the node client using server-only `LIVEBLOCKS_SECRET_KEY`.
+- The server-side workspace mounts a client `CanvasRoom` with Liveblocks providers and loading/error fallbacks. `BaseCanvas` uses `useLiveblocksFlow` for collaborative node/edge state; validated shape drops use its node-change handler to add nodes, without a separate database or snapshot save operation. Custom nodes render their stored shape using CSS for rectangles, circles, and pills, and inline SVG for diamonds, cylinders, and hexagons.
 - Editor project lists are loaded server-side through `lib/project-data.ts`; shared access matches verified Clerk email addresses to collaborator emails case-insensitively.
 - `lib/project-access.ts` resolves Clerk identity (user ID, primary email, verified emails) and checks individual room access by owner or verified collaborator email. `/editor/[roomId]` redirects signed-out users and renders the same `AccessDenied` screen for missing and unauthorized projects before loading sidebar data.
 - New editor projects use a slug plus unique suffix as both project ID and room ID. POST accepts a validated `roomId`; callers omitting it retain server-generated IDs. Rename does not change the ID.

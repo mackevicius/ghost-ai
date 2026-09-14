@@ -5,11 +5,11 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Current Phase
 
-- Feature: 09 - Share Dialog (implemented; live authenticated verification pending)
+- Feature: 12 - Shape Panel (implemented; authenticated live verification pending)
 
 ## Current Goal
 
-- Verify sharing with live owner/collaborator sessions and real Clerk profiles before the next feature.
+- Verify shape dragging and synced node creation with signed-in owner/collaborator sessions and desktop/mobile viewports.
 
 ## Completed
 
@@ -29,7 +29,16 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 - **09-share-dialog**: The workspace Share action opens a collaborator list enriched with Clerk names/avatars and email-only fallback. Owners can invite normalized emails, remove collaborators, and copy the project link with temporary feedback; collaborators have read-only controls and API-enforced restrictions. All 41 regression tests, focused lint, TypeScript, and `npm run build` pass; live authenticated browser/database verification remains pending.
 
+- **10-liveblocks-setup**: Implemented typed Presence/UserMeta, deterministic cursor colors, and a lazy globally cached node client. The Clerk-authenticated endpoint checks existing project access, gets or creates a private room, and issues a token scoped to that project with server-derived user metadata. All 54 tests, TypeScript, focused lint, and `npm run build` pass; live verification is blocked by the missing `LIVEBLOCKS_SECRET_KEY`.
+
+- **11-base-canvas**: The workspace hosts a client-side Liveblocks room with loading/error fallbacks and a suspense-enabled, synced React Flow canvas. Shared canvas types, loose connections, fitView, MiniMap, and dots are included. All 56 tests, focused lint, TypeScript, and the production build passed.
+
+- **12-shape-panel**: A floating bottom-center pill toolbar provides six draggable shape icons with shape/size payloads. Valid drops convert screen coordinates through React Flow and add synced `canvasNode` nodes with empty labels, default neutral color, dimensions, and shape/timestamp/counter IDs; nodes render their saved shape with CSS or inline SVG, including existing nodes. All five focused canvas tests pass, including all six shapes and selection outlines; browser drag-and-drop, mobile layout, and cross-user sync verification remain pending.
+
 ## In Progress
+
+- Feature 12 authenticated browser drag-and-drop and desktop/mobile layout checks remain pending. Native HTML drag-and-drop is implemented; touch-specific interaction is not included in this unit.
+- Feature 11 live room and desktop/mobile visual checks remain pending: the available browser redirects to sign-in. Feature 10 still requires `LIVEBLOCKS_SECRET_KEY` locally and in deployment; its current configuration was not rechecked.
 
 - Feature 09 live verification remains pending: test invitation/removal with separate owner and collaborator sessions, real Clerk profile images, and clipboard permissions. Current coverage uses mocked dependencies and render/state checks.
 - Feature 08 live authenticated and desktop/mobile visual verification remains pending. Access, project context, denial rendering, and sidebar toggles are covered by mocked/render tests; these do not replace live database or browser checks.
@@ -39,6 +48,7 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Next Up
 
+- Verify owner/collaborator room connection and denied access, then drag each shape at different canvas zoom/pan positions and confirm cross-user synchronization.
 - Verify feature 09 sharing with live owner/collaborator sessions. Invitation email delivery is not implemented; share the copied project URL with invited collaborators.
 - Verify the feature 07 create/rename/delete flows, shared tab, dialog focus, and mobile layout with a signed-in session.
 - Verify feature 08 workspace access, long project names, AI/sidebar toggles, and desktop/mobile layout, then choose the next feature specification. Real canvas, AI chat, and sharing remain out of scope for feature 08.
@@ -53,6 +63,10 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Session Notes
 
+- Feature 12 checks: all 58 tests, focused ESLint, `npx tsc --noEmit`, and `npm run build` pass. The dev server was stopped with explicit approval and left stopped. Existing Rosetta and parent-lockfile warnings remain. Shape-specific visuals and persistence were not added.
+- Feature 11 checks: all 56 tests, focused ESLint, `npx tsc --noEmit`, and `npm run build` pass. The dev server was stopped with explicit approval and left stopped; restart manually with `npm run dev`. Existing Rosetta and parent-lockfile build warnings remain. Live authenticated canvas verification was blocked by the browser sign-in requirement.
+- Feature 10 added `@liveblocks/node@3.24.1`, matching the installed client packages; the spec's dependency assumption was missing this server package. Install still reports 17 existing vulnerabilities (13 moderate, 4 high); no unrelated dependency upgrades were made.
+- Feature 10 checks: `node --test tests/*.test.mjs` (54 passing), `npx tsc --noEmit`, focused ESLint, and `npm run build`. The build retains the existing Rosetta and parent-lockfile warnings. No development server was running, started, or stopped.
 - Sharing access-list follow-up: `People with access` now includes the owner above collaborators, with an Owner label and `(you)` for the owner viewer. The owner has no removal action and remains visible with a fallback label if Clerk is unavailable. Owner and collaborator profile lookups run concurrently with separate 1.5-second deadlines; GET now returns `{ collaborators, owner, isOwner }`. Fourteen sharing tests, TypeScript, and focused lint pass; live visual verification remains pending.
 - Sharing loading follow-up: owner list requests skip Clerk identity enrichment; optional collaborator profile loading has a 1.5-second deadline with email-only fallback, and empty lists skip Clerk entirely. Fourteen focused sharing tests, TypeScript, and lint pass. Live request timing remains unmeasured; database and authentication latency are not covered by the profile deadline.
 - Feature 09 verification: `node --test tests/*.test.mjs` (41 passing), `npm run build`, `npx tsc --noEmit`, and focused ESLint pass. With approval, the dev server was stopped for the build and left stopped; restart manually with `npm run dev`.

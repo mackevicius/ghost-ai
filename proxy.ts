@@ -6,9 +6,10 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 const isProjectApiRoute = createRouteMatcher(['/api/projects', '/api/projects/(.*)']);
+const isLiveblocksAuthRoute = createRouteMatcher(['/api/liveblocks-auth']);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req) && !isProjectApiRoute(req)) {
+  if (!isPublicRoute(req) && !isProjectApiRoute(req) && !isLiveblocksAuthRoute(req)) {
     await auth.protect();
   }
 });

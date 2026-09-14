@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Liveblocks Configuration
+
+Set `LIVEBLOCKS_SECRET_KEY` in `.env.local` for development and in the hosting
+environment for deployment. Get the secret key from your Liveblocks project
+dashboard; never use a `NEXT_PUBLIC_` prefix or commit the key.
+
+`POST /api/liveblocks-auth` accepts `{ "room": "<project-id>" }`. It requires a
+Clerk session and checks project ownership or verified-email collaborator access
+before getting or creating a private Liveblocks room and issuing a room-scoped
+access token. Missing project access returns `403`; signed-out requests return
+`401`. The server client is initialized lazily, so builds do not require the key.
+
+This setup does not yet connect the workspace UI to Liveblocks or add a canvas.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
