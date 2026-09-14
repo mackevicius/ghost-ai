@@ -63,6 +63,7 @@ Completed section: 2-3 sentences per feature, max. Summarize what exists now, no
 
 ## Session Notes
 
+- Merge with `origin/main`: retained the current workspace, shared identity helper, route authentication behavior, and regression tests over the older feature 07 versions. Removed the incoming obsolete `/editor/[projectId]` page in favor of `/editor/[roomId]`; all 59 tests, TypeScript, and focused lint pass. Production build was not run while the development server is active.
 - Feature 12 checks: all 58 tests, focused ESLint, `npx tsc --noEmit`, and `npm run build` pass. The dev server was stopped with explicit approval and left stopped. Existing Rosetta and parent-lockfile warnings remain. Shape-specific visuals and persistence were not added.
 - Feature 11 checks: all 56 tests, focused ESLint, `npx tsc --noEmit`, and `npm run build` pass. The dev server was stopped with explicit approval and left stopped; restart manually with `npm run dev`. Existing Rosetta and parent-lockfile build warnings remain. Live authenticated canvas verification was blocked by the browser sign-in requirement.
 - Feature 10 added `@liveblocks/node@3.24.1`, matching the installed client packages; the spec's dependency assumption was missing this server package. Install still reports 17 existing vulnerabilities (13 moderate, 4 high); no unrelated dependency upgrades were made.
